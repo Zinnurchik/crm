@@ -36,11 +36,6 @@ public class EmployeeService {
         return employeeRepository.findById(id);
     }
 
-    // Fetch employee by username
-    public Optional<Employee> getEmployeeByUsername(String username) {
-        return employeeRepository.findByUsername(username);
-    }
-
     // Create or update an employee
     public Employee saveEmployee(Employee employee) {
 

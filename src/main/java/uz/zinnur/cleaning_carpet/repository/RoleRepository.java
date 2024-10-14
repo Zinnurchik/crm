@@ -6,4 +6,5 @@ import uz.zinnur.cleaning_carpet.model.Role;
 import java.util.Optional;
 
 public interface RoleRepository extends JpaRepository<Role, Long> {
+    Role findByRole(String role);
 }
