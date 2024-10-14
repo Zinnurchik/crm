@@ -41,10 +41,10 @@ public class ApplicationConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-//
-//    @Bean("auditor")
-//    AuditorAware<UUID> auditorProvider() {
-//        return new ApplicationAuditAware();
-//    }
+
+    @Bean("auditor")
+    AuditorAware<UUID> auditorProvider() {
+        return new ApplicationAuditAware();
+    }
 }
 
