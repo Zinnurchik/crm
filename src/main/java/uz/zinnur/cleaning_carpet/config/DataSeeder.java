@@ -34,11 +34,11 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-//        seedPermissionsAndRoles();
-//        seedEmployees();
+       //seedPermissionsAndRoles();
+       //seedEmployees();
     }
 
-    private void seedPermissionsAndRoles() {
+    private void seedPermissionsAndRoles() throws InterruptedException {
         // Create sample permissions
         Permission readEmployeePermission = new Permission();
         readEmployeePermission.setPermission("READ_EMPLOYEE");
@@ -50,7 +50,8 @@ public class DataSeeder implements CommandLineRunner {
         deleteEmployeePermission.setPermission("DELETE_EMPLOYEE");
         // Save permissions to the database
         permissionRepository.saveAll(List.of(readEmployeePermission, writeEmployeePermission, updateEmployeePermission, deleteEmployeePermission));
-        System.out.println(readEmployeePermission.getId() + " = permission's id");
+
+        Thread.sleep(1000);
 
         // Create roles and assign permissions
         Role adminRole = new Role();
@@ -68,6 +69,7 @@ public class DataSeeder implements CommandLineRunner {
         Role washerRole = new Role();
         washerRole.setRole("WASHER");
         washerRole.setPermissions(new HashSet<>(List.of(readEmployeePermission)));
+
         Role managerRole = new Role();
         managerRole.setRole("MANAGER");
         managerRole.setPermissions(new HashSet<>(List.of(readEmployeePermission, writeEmployeePermission)));
@@ -77,6 +79,7 @@ public class DataSeeder implements CommandLineRunner {
         packagerRole.setPermissions(new HashSet<>(List.of(readEmployeePermission)));
         // Save roles to the database
         roleRepository.saveAll(List.of(adminRole, operatorRole, driverRole, washerRole, managerRole, packagerRole));
+        Thread.sleep(1000);
     }
 
     private void seedEmployees() {
@@ -84,15 +87,20 @@ public class DataSeeder implements CommandLineRunner {
         Faker faker = new Faker();
         List<Role> roles = roleRepository.findAll();
         for (int i = 1; i <= 50; i++) {
-            String randomPassword = faker.internet().password(8, 16);
+            String randomPassword = faker.internet().password(6, 16);
             String username = faker.name().username();
             System.out.println(username + ": " + randomPassword);
+            int i1 = random.nextInt(100000000, 999999999);
+            String phone = String.valueOf(i1);
             Employee employee = new Employee(
                     faker.name().firstName(),
                     faker.name().lastName(),
                     username,
                     passwordEncoder.encode(randomPassword),
-                    Set.of(roles.get(random.nextInt(roles.size()))));
+                    "+998" + phone,
+                    Set.of(roles.get(random.nextInt(roles.size())))
+            );
+            System.out.println(employee);
             employeeRepository.save(employee);
         }
     }

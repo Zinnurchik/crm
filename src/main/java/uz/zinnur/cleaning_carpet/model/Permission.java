@@ -19,4 +19,9 @@ public class Permission extends BaseEntity{
     public void setPermission(String permission) {
         this.permission = permission;
     }
+
+    @Override
+    public String toString() {
+        return "'" + permission + "'";
+    }
 }

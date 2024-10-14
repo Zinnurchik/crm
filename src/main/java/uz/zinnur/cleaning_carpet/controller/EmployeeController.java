@@ -1,15 +1,17 @@
 package uz.zinnur.cleaning_carpet.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import uz.zinnur.cleaning_carpet.model.Employee;
 import uz.zinnur.cleaning_carpet.service.EmployeeService;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/v1/employees")
@@ -26,8 +28,8 @@ public class EmployeeController {
 
     // Get all employees
     @GetMapping
-    public List<Employee> getAllEmployees() {
-        return employeeService.getAllEmployees();
+    public ResponseEntity<List<Employee>> getAllEmployees() {
+        return new ResponseEntity<>(employeeService.getAllEmployees(), HttpStatus.FOUND);
     }
 
     // Get employee by ID
@@ -40,8 +42,7 @@ public class EmployeeController {
 
     // Create a new employee
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee) {
-        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+    public ResponseEntity<Employee> createEmployee(@Valid @RequestBody Employee employee) {
         Employee createdEmployee = employeeService.saveEmployee(employee);
         return ResponseEntity.ok(createdEmployee);
     }
