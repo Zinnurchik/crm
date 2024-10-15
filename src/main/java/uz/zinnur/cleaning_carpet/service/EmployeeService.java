@@ -57,8 +57,8 @@ public class EmployeeService {
             employee.getRoles().forEach(role -> {
                 Set<Permission> permissions = new HashSet<>();
                 role.getPermissions().forEach(permission -> {
-                    Permission savedPermission = permissionService.savePermission(permission);
-                    permissions.add(savedPermission);
+                    Permission permissionByName = permissionService.getPermissionByName(permission.getPermission());
+                    permissions.add(permissionByName);
                 });
                 role.setPermissions(permissions);
                 Role savedRole = roleService.saveRole(role);

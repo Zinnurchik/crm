@@ -37,4 +37,7 @@ public class PermissionService {
     public void deletePermission(Long id) {
         permissionRepository.deleteById(id);
     }
+    public Permission getPermissionByName(String name) {
+        return permissionRepository.findByPermission(name).orElseThrow(() -> new RuntimeException("Permission not found"));
+    }
 }
