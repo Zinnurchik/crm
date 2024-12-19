@@ -8,7 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -79,7 +78,8 @@ public class Employee extends BaseEntity implements UserDetails {
         this.password = password;
     }
 
-    public @NotBlank(message = "Phone number is required") @Pattern(regexp = "^\\+?[0-9]{12}$", message = "Phone number must be valid (e.g., +1234567890)") String getPhoneNumber() {
+    public @NotBlank(message = "Phone number is required") @Pattern(regexp = "^\\+?[0-9]{12}$", message = "Phone number must be valid (e.g., +1234567890)")
+    String getPhoneNumber() {
         return phoneNumber;
     }
 

@@ -9,7 +9,6 @@ import uz.zinnur.cleaning_carpet.model.Permission;
 import uz.zinnur.cleaning_carpet.model.Role;
 import uz.zinnur.cleaning_carpet.repository.EmployeeRepository;
 import uz.zinnur.cleaning_carpet.repository.PermissionRepository;
-import uz.zinnur.cleaning_carpet.repository.RoleRepository;
 import uz.zinnur.cleaning_carpet.service.PermissionService;
 import uz.zinnur.cleaning_carpet.service.RoleService;
 
