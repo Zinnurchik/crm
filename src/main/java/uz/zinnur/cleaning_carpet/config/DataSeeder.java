@@ -37,8 +37,8 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-       seedPermissions();
-       seedEmployeesAndRoles();
+//       seedPermissions();
+//       seedEmployeesAndRoles();
     }
 
     private void seedPermissions() throws InterruptedException {
