@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Entity
 @Table(name = "employees")
@@ -43,21 +42,21 @@ public class Employee extends BaseEntity implements UserDetails {
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "employee_roles",
+            name = "employee_role",
             joinColumns = @JoinColumn(name = "employee_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<Role> roles;
+    private Role role;
 
-    public Employee(String name, String surname, String username, String password, String phoneNumber, Set<Role> roles) {
+    public Employee(String name, String surname, String username, String password, String phoneNumber, Role role) {
         this.name = name;
         this.surname = surname;
         this.username = username;
         this.password = password;
         this.phoneNumber = phoneNumber;
-        this.roles = roles;
+        this.role = role;
     }
 
     public Employee() {
@@ -88,8 +87,8 @@ public class Employee extends BaseEntity implements UserDetails {
         this.phoneNumber = phoneNumber;
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    public void setRoles(Role role) {
+        this.role = role;
     }
 
     // Getters
@@ -102,23 +101,18 @@ public class Employee extends BaseEntity implements UserDetails {
     }
 
 
-    public Set<Role> getRoles() {
-        return roles;
+    public Role getRole() {
+        return role;
     }
 
     // UserDetails interface methods
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream()
-                .flatMap(role -> Stream.concat(
-                        // Add the role itself as a GrantedAuthority with "ROLE_" prefix
-                        Stream.of(new SimpleGrantedAuthority("ROLE_" + role.getRole())),
-
-                        // Add each permission as a separate GrantedAuthority
-                        role.getPermissions().stream()
-                                .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
-                ))
-                .collect(Collectors.toSet()); // Collect as a Set to avoid duplicates
+        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority("ROLE_" + role.getRole());
+        Set<SimpleGrantedAuthority> collect = role.getPermissions().stream().map(permission ->
+                new SimpleGrantedAuthority(permission.getPermission())).collect(Collectors.toSet());
+       collect.add(simpleGrantedAuthority);
+        return collect;
     }
 
 
@@ -160,7 +154,7 @@ public class Employee extends BaseEntity implements UserDetails {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
-                ", roles=" + Arrays.toString(roles.toArray()) +
+                ", role=" + role.toString() +
                 '}';
     }
 }

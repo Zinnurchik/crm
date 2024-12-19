@@ -1,6 +1,6 @@
 package uz.zinnur.cleaning_carpet.config;
 
-import com.github.javafaker.Faker;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -22,28 +22,27 @@ public class DataSeeder implements CommandLineRunner {
     private final EmployeeRepository employeeRepository;
     private final PermissionRepository permissionRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
     private final RoleService roleService;
     private final PermissionService permissionService;
 
+    @Autowired
     public DataSeeder(EmployeeRepository employeeRepository,
                       PermissionRepository permissionRepository,
-                      PasswordEncoder passwordEncoder, RoleRepository roleRepository, RoleService roleService, PermissionService permissionService) {
+                      PasswordEncoder passwordEncoder, RoleService roleService, PermissionService permissionService) {
         this.employeeRepository = employeeRepository;
         this.permissionRepository = permissionRepository;
         this.passwordEncoder = passwordEncoder;
-        this.roleRepository = roleRepository;
         this.roleService = roleService;
         this.permissionService = permissionService;
     }
 
     @Override
     public void run(String... args) throws Exception {
-       seedPermissionsAndRoles();
-       seedEmployees();
+       seedPermissions();
+       seedEmployeesAndRoles();
     }
 
-    private void seedPermissionsAndRoles() throws InterruptedException {
+    private void seedPermissions() throws InterruptedException {
         // Create sample permissions
         Permission readEmployeePermission = new Permission();
         readEmployeePermission.setPermission("READ_EMPLOYEE");
@@ -58,7 +57,7 @@ public class DataSeeder implements CommandLineRunner {
         Thread.sleep(1000);
     }
 
-    private void seedEmployees() {
+    private void seedEmployeesAndRoles() throws InterruptedException {
         Role roleAdmin = new Role("ADMIN", Set.of(
                 permissionService.getPermissionByName("READ_EMPLOYEE"),
                 permissionService.getPermissionByName("UPDATE_EMPLOYEE"),
@@ -73,10 +72,10 @@ public class DataSeeder implements CommandLineRunner {
         roleService.saveRole(roleAdmin);
         roleService.saveRole(roleManager);
 
+        Thread.sleep(1000);
+
         Employee employee = new Employee("Zinnurbek", "Ahrorov", "zinnurbek", passwordEncoder.encode("78987898alo"),
-                "+998979265868", Set.of(
-                roleAdmin, roleManager
-        ));
+                "+998979265868", roleAdmin);
         employeeRepository.save(employee);
     }
 }

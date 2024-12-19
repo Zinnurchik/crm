@@ -11,5 +11,4 @@ public class CleaningCarpetApplication {
     public static void main(String[] args) {
         SpringApplication.run(CleaningCarpetApplication.class, args);
     }
-
 }

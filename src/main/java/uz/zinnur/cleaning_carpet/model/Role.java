@@ -11,9 +11,7 @@ public class Role extends BaseEntity {
     @Column(name = "role", nullable = false)
     private String role;
 
-    // Assuming each role can have multiple permissions
     @ManyToMany(fetch = FetchType.EAGER)
-    // Adjust to Lazy if performance issues arise
     @JoinTable(
             name = "role_permissions",
             joinColumns = @JoinColumn(name = "role_id"),
@@ -51,16 +49,4 @@ public class Role extends BaseEntity {
     public String toString() {
         return role + ", permissions=" + Arrays.toString(permissions.toArray());
     }
-
-    //    // Map role and permissions to Spring Security's authorities
-//    public List<SimpleGrantedAuthority> getAuthorities() {
-//        var list = getPermissions()
-//                .stream()
-//                .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
-//                .collect(Collectors.toList());
-//
-//        // Add the role as a SimpleGrantedAuthority with prefix ROLE_
-//        list.add(new SimpleGrantedAuthority("ROLE_" + getRole()));
-//        return list;
-//    }
 }

@@ -12,7 +12,7 @@ import uz.zinnur.cleaning_carpet.model.dto.AuthenticationDto;
 import uz.zinnur.cleaning_carpet.service.AuthenticationService;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/auth")
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
     @Autowired
@@ -22,6 +22,7 @@ public class AuthenticationController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@Valid @RequestBody AuthenticationDto authenticationDto){
+        System.out.println(authenticationDto);
         return ResponseEntity.ok(authenticationService.authenticate(authenticationDto));
     }
 }

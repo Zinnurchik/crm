@@ -9,9 +9,13 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import uz.zinnur.cleaning_carpet.auditing.ApplicationAuditAware;
 import uz.zinnur.cleaning_carpet.service.CustomUserDetailsService;
 
+import java.util.List;
 import java.util.UUID;
 
 @Configuration
@@ -45,6 +49,21 @@ public class ApplicationConfig {
     @Bean("auditor")
     AuditorAware<UUID> auditorProvider() {
         return new ApplicationAuditAware();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080")); // Allowed origins
+        configuration.addAllowedOriginPattern("*");
+        configuration.setAllowedMethods(List.of("*")); // Allowed methods
+        configuration.setAllowedHeaders(List.of("*")); // Allowed headers
+        configuration.setExposedHeaders(List.of("Authorization")); // Expose specific headers to the client
+        configuration.setAllowCredentials(true); // Allow credentials like cookies
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
 

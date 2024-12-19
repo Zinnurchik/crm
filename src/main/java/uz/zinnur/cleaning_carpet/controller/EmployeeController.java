@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import uz.zinnur.cleaning_carpet.model.Employee;
 import uz.zinnur.cleaning_carpet.service.EmployeeService;
@@ -14,18 +14,26 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/api/v1/employees")
+@RequestMapping("/employees")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
-    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService, PasswordEncoder passwordEncoder) {
+    public EmployeeController(EmployeeService employeeService) {
         this.employeeService = employeeService;
-        this.passwordEncoder = passwordEncoder;
     }
 
+    @GetMapping("/current_employee")
+    public ResponseEntity<Employee> getCurrentEmployee() {
+        // Assuming the SecurityContext contains user details with a username or ID
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Optional<Employee> currentEmployee = employeeService.getEmployeeByUsername(username);
+
+        return currentEmployee.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
     // Get all employees
     @GetMapping
     public ResponseEntity<List<Employee>> getAllEmployees() {
@@ -57,7 +65,7 @@ public class EmployeeController {
             employee.setSurname(employeeDetails.getSurname());
             employee.setUsername(employeeDetails.getUsername());
             employee.setPassword(employeeDetails.getPassword());
-            employee.setRoles(employeeDetails.getRoles());
+            employee.setRoles(employeeDetails.getRole());
 
             Employee updatedEmployee = employeeService.saveEmployee(employee);
             return ResponseEntity.ok(updatedEmployee);

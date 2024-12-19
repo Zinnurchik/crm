@@ -53,18 +53,14 @@ public class EmployeeService {
         employee.setPassword(passwordEncoder.encode(employee.getPassword()));
 
         try {
-            Set<Role> roles = new HashSet<>();
-            employee.getRoles().forEach(role -> {
-                Set<Permission> permissions = new HashSet<>();
-                role.getPermissions().forEach(permission -> {
-                    Permission permissionByName = permissionService.getPermissionByName(permission.getPermission());
-                    permissions.add(permissionByName);
-                });
-                role.setPermissions(permissions);
-                Role savedRole = roleService.saveRole(role);
-                roles.add(savedRole);
+            Set<Permission> permissions = new HashSet<>();
+            employee.getRole().getPermissions().forEach(permission -> {
+                Permission permissionByName = permissionService.getPermissionByName(permission.getPermission());
+                permissions.add(permissionByName);
             });
-            employee.setRoles(roles);
+            employee.getRole().setPermissions(permissions);
+            Role savedRole = roleService.saveRole(employee.getRole());
+            employee.setRoles(savedRole);
             return employeeRepository.save(employee);
         } catch (DataIntegrityViolationException e) {
             // Handle cases where constraints are violated (e.g., unique constraints)
@@ -76,6 +72,10 @@ public class EmployeeService {
     // Delete an employee by ID
     public void deleteEmployee(UUID id) {
         employeeRepository.deleteById(id);
+    }
+
+    public Optional<Employee> getEmployeeByUsername(String username) {
+        return employeeRepository.findByUsername(username);
     }
 }
 
