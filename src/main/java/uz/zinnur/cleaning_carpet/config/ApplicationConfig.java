@@ -50,37 +50,5 @@ public class ApplicationConfig {
     AuditorAware<UUID> auditorProvider() {
         return new ApplicationAuditAware();
     }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        // Specify allowed origins - avoid using "*" in production
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080")); // Add trusted domains
-        configuration.addAllowedOriginPattern("*");
-
-        // Specify allowed HTTP methods
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")); // Allow only required methods
-
-        // Specify allowed headers
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); // Only allow specific headers
-
-        // Expose specific headers
-        configuration.setExposedHeaders(List.of("Authorization")); // Allow the frontend to access these headers
-
-        // Allow credentials (cookies or authorization headers)
-        configuration.setAllowCredentials(true);
-
-        // Avoid using addAllowedOriginPattern("*") unless absolutely necessary
-        // Only use it in development if you can't predict origins
-        // configuration.addAllowedOriginPattern("*"); // Commented out to enhance security
-
-        // Register the configuration for all endpoints
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
-    }
-
 }
 
