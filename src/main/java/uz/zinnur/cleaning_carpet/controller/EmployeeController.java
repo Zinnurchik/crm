@@ -7,7 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import uz.zinnur.cleaning_carpet.model.Employee;
+import uz.zinnur.cleaning_carpet.model.projection.EmployeeProjection;
 import uz.zinnur.cleaning_carpet.service.EmployeeService;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,11 +37,16 @@ public class EmployeeController {
         return currentEmployee.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+
     // Get all employees
     @GetMapping
-    public ResponseEntity<List<Employee>> getAllEmployees() {
-        System.out.println("hellooooooo");
-        return new ResponseEntity<>(employeeService.getAllEmployees(), HttpStatus.OK);
+    public ResponseEntity<List<EmployeeProjection>> getAllEmployeesExceptCurrent() {
+        // Get the current authenticated user's username
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // Fetch all employees except the current user
+        List<EmployeeProjection> employees = employeeService.getAllEmployeesExceptCurrent(currentUsername);
+        return ResponseEntity.ok(employees);
     }
 
     // Get employee by ID
@@ -50,8 +58,9 @@ public class EmployeeController {
     }
 
     // Create a new employee
-    @PostMapping
+    @PostMapping("/create_employee")
     public ResponseEntity<Employee> createEmployee(@Valid @RequestBody Employee employee) {
+        employee.getRole().setPermissions(new HashSet<>());
         Employee createdEmployee = employeeService.saveEmployee(employee);
         return ResponseEntity.ok(createdEmployee);
     }

@@ -68,8 +68,16 @@ public class DataSeeder implements CommandLineRunner {
                 permissionService.getPermissionByName("UPDATE_EMPLOYEE"),
                 permissionService.getPermissionByName("CREATE_EMPLOYEE")
         ));
+        Role roleOperator = new Role("OPERATOR", null);
+        Role roleDriver = new Role("DRIVER", null);
+        Role roleWasher = new Role("WASHER", null);
+        Role rolePackager = new Role("PACKAGER", null);
         roleService.saveRole(roleAdmin);
         roleService.saveRole(roleManager);
+        roleService.saveRole(roleOperator);
+        roleService.saveRole(roleDriver);
+        roleService.saveRole(roleWasher);
+        roleService.saveRole(rolePackager);
 
         Thread.sleep(1000);
 
