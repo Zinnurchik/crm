@@ -38,7 +38,7 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 //       seedPermissions();
-//       seedEmployeesAndRoles();
+       seedEmployeesAndRoles();
     }
 
     private void seedPermissions() throws InterruptedException {
@@ -68,14 +68,22 @@ public class DataSeeder implements CommandLineRunner {
                 permissionService.getPermissionByName("UPDATE_EMPLOYEE"),
                 permissionService.getPermissionByName("CREATE_EMPLOYEE")
         ));
-        roleService.saveRole(roleAdmin);
-        roleService.saveRole(roleManager);
+        Role roleOperator = new Role("OPERATOR", null);
+        Role roleDriver = new Role("DRIVER", null);
+        Role roleWasher = new Role("WASHER", null);
+        Role rolePackager = new Role("PACKAGER", null);
+//        roleService.saveRole(roleAdmin);
+//        roleService.saveRole(roleManager);
+        roleService.saveRole(roleOperator);
+        roleService.saveRole(roleDriver);
+        roleService.saveRole(roleWasher);
+        roleService.saveRole(rolePackager);
 
-        Thread.sleep(1000);
-
-        Employee employee = new Employee("Zinnurbek", "Ahrorov", "zinnurbek", passwordEncoder.encode("78987898alo"),
-                "+998979265868", roleAdmin);
-        employeeRepository.save(employee);
+//        Thread.sleep(1000);
+//
+//        Employee employee = new Employee("Zinnurbek", "Ahrorov", "zinnurbek", passwordEncoder.encode("78987898alo"),
+//                "+998979265868", roleAdmin);
+//        employeeRepository.save(employee);
     }
 }
 

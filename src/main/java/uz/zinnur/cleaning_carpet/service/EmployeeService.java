@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import uz.zinnur.cleaning_carpet.model.Employee;
 import uz.zinnur.cleaning_carpet.model.Permission;
 import uz.zinnur.cleaning_carpet.model.Role;
+import uz.zinnur.cleaning_carpet.model.projection.EmployeeProjection;
 import uz.zinnur.cleaning_carpet.repository.EmployeeRepository;
 import java.util.*;
 
@@ -27,8 +28,8 @@ public class EmployeeService {
     }
 
     // Fetch all employees
-    public List<Employee> getAllEmployees() {
-        return employeeRepository.findAll();
+    public List<EmployeeProjection> getAllEmployeesExceptCurrent(String currentUsername) {
+        return employeeRepository.findAllUsersExcept(currentUsername);
     }
 
     // Fetch employee by ID
@@ -53,21 +54,14 @@ public class EmployeeService {
         employee.setPassword(passwordEncoder.encode(employee.getPassword()));
 
         try {
-            Set<Permission> permissions = new HashSet<>();
-            employee.getRole().getPermissions().forEach(permission -> {
-                Permission permissionByName = permissionService.getPermissionByName(permission.getPermission());
-                permissions.add(permissionByName);
-            });
-            employee.getRole().setPermissions(permissions);
-            Role savedRole = roleService.saveRole(employee.getRole());
-            employee.setRoles(savedRole);
+            Role roleByRole = roleService.findRoleByRole(employee.getRole().getRole());
+            employee.setRoles(roleByRole);
             return employeeRepository.save(employee);
         } catch (DataIntegrityViolationException e) {
             // Handle cases where constraints are violated (e.g., unique constraints)
             throw new IllegalStateException("Failed to save employee due to data integrity violation", e);
         }
     }
-
 
     // Delete an employee by ID
     public void deleteEmployee(UUID id) {

@@ -23,6 +23,10 @@ public class RoleService {
         return roleRepository.findAll();
     }
 
+    public Role findRoleByRole(String role) {
+        return roleRepository.findByRole(role);
+    }
+
     // Fetch role by ID
     public Optional<Role> getRoleById(Long id) {
         return roleRepository.findById(id);
