@@ -88,6 +88,10 @@ public class EmployeeController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmployee(@PathVariable UUID id) {
         Optional<Employee> existingEmployee = employeeService.getEmployeeById(id);
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (existingEmployee.isPresent() && existingEmployee.get().getUsername().equals(currentUsername)) {
+            throw(new RuntimeException("You are not allowed to delete yourself"));
+        }
         if (existingEmployee.isPresent()) {
             employeeService.deleteEmployee(id);
             return ResponseEntity.noContent().build();
