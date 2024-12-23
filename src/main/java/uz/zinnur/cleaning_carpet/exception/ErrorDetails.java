@@ -1,15 +1,16 @@
 package uz.zinnur.cleaning_carpet.exception;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 public class ErrorDetails {
 
     private LocalDateTime timestamp;
     private String message;
-    private String details;
+    private Map<String, String> details;
 
     // Constructor
-    public ErrorDetails(LocalDateTime timestamp, String message, String details) {
+    public ErrorDetails(LocalDateTime timestamp, String message, Map<String, String> details) {
         super();
         this.timestamp = timestamp;
         this.message = message;
@@ -33,11 +34,11 @@ public class ErrorDetails {
         this.message = message;
     }
 
-    public String getDetails() {
+    public Map<String, String> getDetails() {
         return details;
     }
 
-    public void setDetails(String details) {
+    public void setDetails(Map<String, String> details) {
         this.details = details;
     }
 

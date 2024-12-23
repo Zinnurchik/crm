@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -27,7 +28,7 @@ public class GlobalExceptionHandler {
                         fieldError -> fieldError.getField(),
                         fieldError -> fieldError.getDefaultMessage()));
 
-        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), "Validation Error", fieldErrors.toString());
+        ErrorDetails errorDetails = new ErrorDetails(LocalDateTime.now(), "Validation Error", fieldErrors);
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
@@ -36,7 +37,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 LocalDateTime.now(),
                 ex.getMessage(),
-                request.getRequestURI()
+                Map.of("uri", request.getRequestURI())
         );
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
@@ -54,7 +55,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 LocalDateTime.now(),
                 errors,
-                request.getRequestURI()  // Include the request URI for context
+                Map.of("uri", request.getRequestURI()) // Include the request URI for context
         );
 
         // Return the ErrorDetails with HTTP status 400 (Bad Request)
@@ -67,7 +68,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 LocalDateTime.now(),
                 "Database error: " + Objects.requireNonNull(ex.getRootCause()).getMessage(),
-                request.getRequestURI()
+                Map.of("uri", request.getRequestURI())
         );
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
     }
@@ -78,7 +79,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 LocalDateTime.now(),
                 ex.getMessage(),
-                request.getRequestURI()
+                Map.of("uri", request.getRequestURI())
         );
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
@@ -89,7 +90,7 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(
                 LocalDateTime.now(),
                 ex.getMessage(),
-                "Unexpected error occurred ..............!!!"
+                Map.of("uri", "Unexpected uri...")
         );
         // Return error details with 500 INTERNAL_SERVER_ERROR status
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
