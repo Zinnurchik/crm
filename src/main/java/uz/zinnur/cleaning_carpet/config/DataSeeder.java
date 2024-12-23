@@ -12,6 +12,7 @@ import uz.zinnur.cleaning_carpet.repository.PermissionRepository;
 import uz.zinnur.cleaning_carpet.service.PermissionService;
 import uz.zinnur.cleaning_carpet.service.RoleService;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -68,10 +69,10 @@ public class DataSeeder implements CommandLineRunner {
                 permissionService.getPermissionByName("UPDATE_EMPLOYEE"),
                 permissionService.getPermissionByName("CREATE_EMPLOYEE")
         ));
-        Role roleOperator = new Role("OPERATOR", null);
-        Role roleDriver = new Role("DRIVER", null);
-        Role roleWasher = new Role("WASHER", null);
-        Role rolePackager = new Role("PACKAGER", null);
+        Role roleOperator = new Role("OPERATOR", new HashSet<>());
+        Role roleDriver = new Role("DRIVER", new HashSet<>());
+        Role roleWasher = new Role("WASHER", new HashSet<>());
+        Role rolePackager = new Role("PACKAGER", new HashSet<>());
         roleService.saveRole(roleAdmin);
         roleService.saveRole(roleManager);
         roleService.saveRole(roleOperator);

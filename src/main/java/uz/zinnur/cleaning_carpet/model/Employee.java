@@ -41,7 +41,7 @@ public class Employee extends BaseEntity implements UserDetails {
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinTable(
             name = "employee_role",
             joinColumns = @JoinColumn(name = "employee_id"),
