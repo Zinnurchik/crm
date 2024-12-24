@@ -190,7 +190,7 @@ public class EmployeeController {
     @PutMapping("/update_role/{id}")
     public ResponseEntity<String> updateRole(
             @PathVariable UUID id,
-            @RequestParam EmployeeRoleDto role) {
+            @RequestBody EmployeeRoleDto role) {
 
         // Validate the role against allowed roles
         Role byRole = roleRepository.findByRole(role.getRole());
