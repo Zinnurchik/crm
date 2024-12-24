@@ -9,8 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import uz.zinnur.cleaning_carpet.model.Employee;
 import uz.zinnur.cleaning_carpet.model.Role;
-import uz.zinnur.cleaning_carpet.model.dto.EmployeeFullNameDto;
-import uz.zinnur.cleaning_carpet.model.dto.EmployeePhoneNumberDto;
+import uz.zinnur.cleaning_carpet.model.dto.*;
 import uz.zinnur.cleaning_carpet.model.projection.EmployeeProjection;
 import uz.zinnur.cleaning_carpet.repository.EmployeeRepository;
 import uz.zinnur.cleaning_carpet.repository.RoleRepository;
@@ -125,10 +124,10 @@ public class EmployeeController {
     @PutMapping("/update_username/{id}")
     public ResponseEntity<String> updateUsername(
             @PathVariable UUID id,
-            @RequestParam String username) {
+            @Valid @RequestBody EmployeeUsernameDto usernameDto) {
 
         // Check if the username already exists
-        boolean isUsernameTaken = employeeRepository.existsByUsername(username);
+        boolean isUsernameTaken = employeeRepository.existsByUsername(usernameDto.getUsername());
         if (isUsernameTaken) {
             return ResponseEntity.badRequest().body("Username is already taken.");
         }
@@ -136,7 +135,7 @@ public class EmployeeController {
         // Find the employee and update the username
         return employeeService.getEmployeeById(id)
                 .map(employee -> {
-                    employee.setUsername(username);
+                    employee.setUsername(usernameDto.getUsername());
                     employeeRepository.save(employee);
                     return ResponseEntity.ok("Username updated successfully.");
                 })
@@ -168,24 +167,18 @@ public class EmployeeController {
     @PutMapping("/update_password/{id}")
     public ResponseEntity<String> updatePassword(
             @PathVariable UUID id,
-            @RequestParam String oldPassword,
-            @RequestParam String newPassword) {
+            @Valid @RequestBody EmployeePasswordDto passwordDto) {
 
         // Find the employee by ID
         return employeeService.getEmployeeById(id)
                 .map(employee -> {
                     // Verify the old password
-                    if (!passwordEncoder.matches(oldPassword, employee.getPassword())) {
+                    if (!passwordEncoder.matches(passwordDto.getOldPassword(), employee.getPassword())) {
                         return ResponseEntity.badRequest().body("Old password is incorrect.");
                     }
 
-                    // Validate the new password (e.g., minimum length)
-                    if (newPassword.length() < 8) {
-                        return ResponseEntity.badRequest().body("Password must be at least 8 characters long.");
-                    }
-
                     // Hash the new password before saving
-                    String hashedPassword = passwordEncoder.encode(newPassword);
+                    String hashedPassword = passwordEncoder.encode(passwordDto.getNewPassword());
                     employee.setPassword(hashedPassword);
                     employeeRepository.save(employee);
 
@@ -197,10 +190,10 @@ public class EmployeeController {
     @PutMapping("/update_role/{id}")
     public ResponseEntity<String> updateRole(
             @PathVariable UUID id,
-            @RequestParam String role) {
+            @RequestParam EmployeeRoleDto role) {
 
         // Validate the role against allowed roles
-        Role byRole = roleRepository.findByRole(role);
+        Role byRole = roleRepository.findByRole(role.getRole());
         if (byRole == null) {
             return ResponseEntity.badRequest().body("Role not found.");
         }
