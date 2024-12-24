@@ -78,16 +78,15 @@ public class Employee extends BaseEntity implements UserDetails {
         this.password = password;
     }
 
-    public @NotBlank(message = "Phone number is required") @Pattern(regexp = "^\\+?[0-9]{12}$", message = "Phone number must be valid (e.g., +1234567890)")
-    String getPhoneNumber() {
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(@NotBlank(message = "Phone number is required") @Pattern(regexp = "^\\+?[0-9]{12}$", message = "Phone number must be valid (e.g., +1234567890)") String phoneNumber) {
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
-    public void setRoles(Role role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 

@@ -1,5 +1,6 @@
 package uz.zinnur.cleaning_carpet.repository;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,5 +21,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
 
     Boolean existsByUsername(String username);
 
+    @Transactional
     Boolean existsByPhoneNumber(String phoneNumber);
 }

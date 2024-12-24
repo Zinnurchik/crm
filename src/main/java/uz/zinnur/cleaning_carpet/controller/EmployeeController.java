@@ -5,9 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import uz.zinnur.cleaning_carpet.model.Employee;
+import uz.zinnur.cleaning_carpet.model.Role;
+import uz.zinnur.cleaning_carpet.model.dto.EmployeeFullNameDto;
+import uz.zinnur.cleaning_carpet.model.dto.EmployeePhoneNumberDto;
 import uz.zinnur.cleaning_carpet.model.projection.EmployeeProjection;
+import uz.zinnur.cleaning_carpet.repository.EmployeeRepository;
+import uz.zinnur.cleaning_carpet.repository.RoleRepository;
 import uz.zinnur.cleaning_carpet.service.EmployeeService;
 
 import java.util.HashSet;
@@ -21,11 +27,21 @@ import java.util.UUID;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final EmployeeRepository employeeRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService) {
+    public EmployeeController(EmployeeService employeeService, EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.employeeService = employeeService;
+        this.employeeRepository = employeeRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
     }
+
+
+
+
 
     @GetMapping("/current_employee")
     public ResponseEntity<Employee> getCurrentEmployee() {
@@ -38,16 +54,26 @@ public class EmployeeController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+
+
+
+
+
     // Get all employees
     @GetMapping
     public ResponseEntity<List<EmployeeProjection>> getAllEmployeesExceptCurrent() {
         // Get the current authenticated user's username
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-
         // Fetch all employees except the current user
         List<EmployeeProjection> employees = employeeService.getAllEmployeesExceptCurrent(currentUsername);
         return ResponseEntity.ok(employees);
     }
+
+
+
+
+
+
 
     // Get employee by ID
     @GetMapping("/{id}")
@@ -57,6 +83,12 @@ public class EmployeeController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+
+
+
+
+
+
     // Create a new employee
     @PostMapping("/create_employee")
     public ResponseEntity<Employee> createEmployee(@Valid @RequestBody Employee employee) {
@@ -65,24 +97,131 @@ public class EmployeeController {
         return ResponseEntity.ok(createdEmployee);
     }
 
-    // Update an existing employee
-    @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable UUID id, @RequestBody Employee employeeDetails) {
-        Optional<Employee> existingEmployee = employeeService.getEmployeeById(id);
-        if (existingEmployee.isPresent()) {
-            Employee employee = existingEmployee.get();
-            employee.setName(employeeDetails.getName());
-            employee.setSurname(employeeDetails.getSurname());
-            employee.setUsername(employeeDetails.getUsername());
-            employee.setPassword(employeeDetails.getPassword());
-            employee.setRoles(employeeDetails.getRole());
 
-            Employee updatedEmployee = employeeService.saveEmployee(employee);
-            return ResponseEntity.ok(updatedEmployee);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+
+
+
+
+
+
+
+
+
+    @PutMapping("/update_full_name/{id}")
+    public ResponseEntity<Employee> updateName(
+            @PathVariable UUID id,
+            @Valid @RequestBody EmployeeFullNameDto updateEmployeeDTO) {
+
+        return employeeService.getEmployeeById(id)
+                .map(employee -> {
+                    employee.setName(updateEmployeeDTO.getName());
+                    employee.setSurname(updateEmployeeDTO.getSurname());
+                    employeeRepository.save(employee);
+                    return ResponseEntity.ok(employee);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
+
+    @PutMapping("/update_username/{id}")
+    public ResponseEntity<String> updateUsername(
+            @PathVariable UUID id,
+            @RequestParam String username) {
+
+        // Check if the username already exists
+        boolean isUsernameTaken = employeeRepository.existsByUsername(username);
+        if (isUsernameTaken) {
+            return ResponseEntity.badRequest().body("Username is already taken.");
+        }
+
+        // Find the employee and update the username
+        return employeeService.getEmployeeById(id)
+                .map(employee -> {
+                    employee.setUsername(username);
+                    employeeRepository.save(employee);
+                    return ResponseEntity.ok("Username updated successfully.");
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/update_phone_number/{id}")
+    public ResponseEntity<String> updatePhoneNumber(
+            @PathVariable UUID id,
+            @Valid @RequestBody EmployeePhoneNumberDto phoneNumber) {
+
+        // Check if the phone number is already in use
+        boolean isPhoneNumberTaken = employeeRepository.existsByPhoneNumber(phoneNumber.getPhoneNumber());
+        if (isPhoneNumberTaken) {
+            return ResponseEntity.badRequest().body("Phone number is already taken.");
+        }
+
+        // Find the employee and update the phone number
+        return employeeService.getEmployeeById(id)
+                .map(employee -> {
+                    employee.setPhoneNumber(phoneNumber.getPhoneNumber()); // Update the phone number
+                    employeeRepository.save(employee);    // Save changes to the database
+                    return ResponseEntity.ok("Phone number updated successfully.");
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+    @PutMapping("/update_password/{id}")
+    public ResponseEntity<String> updatePassword(
+            @PathVariable UUID id,
+            @RequestParam String oldPassword,
+            @RequestParam String newPassword) {
+
+        // Find the employee by ID
+        return employeeService.getEmployeeById(id)
+                .map(employee -> {
+                    // Verify the old password
+                    if (!passwordEncoder.matches(oldPassword, employee.getPassword())) {
+                        return ResponseEntity.badRequest().body("Old password is incorrect.");
+                    }
+
+                    // Validate the new password (e.g., minimum length)
+                    if (newPassword.length() < 8) {
+                        return ResponseEntity.badRequest().body("Password must be at least 8 characters long.");
+                    }
+
+                    // Hash the new password before saving
+                    String hashedPassword = passwordEncoder.encode(newPassword);
+                    employee.setPassword(hashedPassword);
+                    employeeRepository.save(employee);
+
+                    return ResponseEntity.ok("Password updated successfully.");
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/update_role/{id}")
+    public ResponseEntity<String> updateRole(
+            @PathVariable UUID id,
+            @RequestParam String role) {
+
+        // Validate the role against allowed roles
+        Role byRole = roleRepository.findByRole(role);
+        if (byRole == null) {
+            return ResponseEntity.badRequest().body("Role not found.");
+        }
+
+        // Find the employee and update the role
+        return employeeService.getEmployeeById(id)
+                .map(employee -> {
+                    employee.setRole(byRole); // Update the role
+                    employeeRepository.save(employee); // Save changes to the database
+                    return ResponseEntity.ok("Role updated successfully.");
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+
+
+
+
+
+
 
     // Delete an employee by ID
     @DeleteMapping("/{id}")
