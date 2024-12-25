@@ -91,7 +91,7 @@ public class EmployeeController {
     // Create a new employee
     @PostMapping("/create_employee")
     public ResponseEntity<Employee> createEmployee(@Valid @RequestBody Employee employee) {
-        employee.getRole().setPermissions(new HashSet<>());
+//        employee.getRole().setPermissions(new HashSet<>()); Role class's permissions = new HashSet();
         Employee createdEmployee = employeeService.saveEmployee(employee);
         return ResponseEntity.ok(createdEmployee);
     }
@@ -107,7 +107,7 @@ public class EmployeeController {
 
 
     @PutMapping("/update_full_name/{id}")
-    public ResponseEntity<Employee> updateName(
+    public ResponseEntity<String> updateName(
             @PathVariable UUID id,
             @Valid @RequestBody EmployeeFullNameDto updateEmployeeDTO) {
 
@@ -116,7 +116,7 @@ public class EmployeeController {
                     employee.setName(updateEmployeeDTO.getName());
                     employee.setSurname(updateEmployeeDTO.getSurname());
                     employeeRepository.save(employee);
-                    return ResponseEntity.ok(employee);
+                    return ResponseEntity.ok("Name and surname updated successfully.");
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
