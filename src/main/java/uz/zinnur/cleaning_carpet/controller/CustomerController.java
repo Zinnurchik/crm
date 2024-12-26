@@ -35,7 +35,7 @@ public class CustomerController {
         return ResponseEntity.ok(customer);
     }
 
-    @GetMapping("/get_by_phone")
+    @PostMapping("/get_by_phone")
     public ResponseEntity<Customer> findCustomerByPhoneNumber(@Valid @RequestBody CustomerPhoneNumberDto phoneNumberDto) {
         Customer customer = customerService.findCustomerByPhoneNumber(phoneNumberDto.getPhoneNumber());
         return ResponseEntity.ok(customer);
