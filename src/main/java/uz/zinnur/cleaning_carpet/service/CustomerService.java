@@ -1,8 +1,11 @@
 package uz.zinnur.cleaning_carpet.service;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import uz.zinnur.cleaning_carpet.model.Customer;
+import uz.zinnur.cleaning_carpet.model.dto.*;
 import uz.zinnur.cleaning_carpet.repository.CustomerRepository;
 
 import java.util.List;
@@ -32,8 +35,11 @@ public class CustomerService {
                 .orElseThrow(() -> new IllegalArgumentException("Customer with phone number " + phoneNumber + " does not exist."));
     }
 
-    public Customer createCustomer(Customer customer) {
-        // Additional validation or preprocessing logic can go here
+    public Customer createCustomer(@NonNull Customer customer) {
+        boolean isPhoneNumberTaken = customerRepository.existsCustomerByPhoneNumber(customer.getPhoneNumber());
+        if (isPhoneNumberTaken) {
+            throw new RuntimeException("Phone number already taken.");
+        }
         return customerRepository.save(customer); // Save the customer to the database
     }
 
@@ -42,5 +48,39 @@ public class CustomerService {
             throw new IllegalArgumentException("Customer with ID " + customerId + " does not exist.");
         }
         customerRepository.deleteById(customerId);
+    }
+
+    public void updateCustomerFullName(UUID id, @NonNull @Valid CustomerFullNameDto fullNameDto) {
+        Customer customerById = getCustomerById(id);
+        customerById.setName(fullNameDto.getName());
+        customerById.setSurname(fullNameDto.getSurname());
+        customerRepository.save(customerById);
+    }
+
+    public void updateCustomerPhoneNumber(UUID id, @NonNull @Valid CustomerPhoneNumberDto phoneNumberDto) {
+        Customer customerById = getCustomerById(id);
+        customerById.setPhoneNumber(phoneNumberDto.getPhoneNumber());
+        customerById.setExtraPhoneNumber(phoneNumberDto.getExtraPhoneNumber());
+        createCustomer(customerById);
+    }
+
+
+    public void updateCustomerType(UUID id, @NonNull @Valid CustomerTypeDto typeDto) {
+        Customer customerById = getCustomerById(id);
+        customerById.setType(typeDto.getType());
+        customerRepository.save(customerById);
+    }
+
+
+    public void updateCustomerLanguage(UUID id,@NonNull @Valid CustomerLanguageDto languageDto) {
+        Customer customerById = getCustomerById(id);
+        customerById.setLanguage(languageDto.getLanguage());
+        customerRepository.save(customerById);
+    }
+
+    public void updateCustomerNotes(UUID id,@NonNull @Valid CustomerNotesDto notesDto) {
+        Customer customerById = getCustomerById(id);
+        customerById.setNotes(notesDto.getNotes());
+        customerRepository.save(customerById);
     }
 }

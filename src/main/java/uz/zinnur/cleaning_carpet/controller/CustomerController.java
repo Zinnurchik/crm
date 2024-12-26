@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.zinnur.cleaning_carpet.model.Customer;
-import uz.zinnur.cleaning_carpet.model.dto.CustomerPhoneNumberDto;
+import uz.zinnur.cleaning_carpet.model.dto.*;
 import uz.zinnur.cleaning_carpet.service.CustomerService;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public class CustomerController {
         return ResponseEntity.ok(customer);
     }
 
-    @GetMapping("/by_phone")
+    @GetMapping("/get_by_phone")
     public ResponseEntity<Customer> findCustomerByPhoneNumber(@Valid @RequestBody CustomerPhoneNumberDto phoneNumberDto) {
         Customer customer = customerService.findCustomerByPhoneNumber(phoneNumberDto.getPhoneNumber());
         return ResponseEntity.ok(customer);
@@ -45,6 +45,34 @@ public class CustomerController {
     public ResponseEntity<Customer> createCustomer(@Valid @RequestBody Customer customer) {
         Customer createdCustomer = customerService.createCustomer(customer);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCustomer); // Return HTTP 201 Created
+    }
+
+    @PutMapping("/update_full_name/{id}")
+    public ResponseEntity<String> updateCustomerFullName(@PathVariable UUID id, @Valid @RequestBody CustomerFullNameDto fullNameDto) {
+        customerService.updateCustomerFullName(id, fullNameDto);
+        return ResponseEntity.ok("Full name updated");
+    }
+
+    @PutMapping("/update_phone_number/{id}")
+    public ResponseEntity<String> updateCustomerPhoneNumber(@PathVariable UUID id, @Valid @RequestBody CustomerPhoneNumberDto phoneNumberDto) {
+        customerService.updateCustomerPhoneNumber(id, phoneNumberDto);
+        return ResponseEntity.ok("Phone number updated");
+    }
+
+    @PutMapping("/update_type/{id}")
+    public ResponseEntity<String> updateCustomerType(@PathVariable UUID id, @Valid @RequestBody CustomerTypeDto typeDto) {
+        customerService.updateCustomerType(id, typeDto);
+        return ResponseEntity.ok("Type updated");
+    }
+    @PutMapping("/update_language/{id}")
+    public ResponseEntity<String> updateCustomerLanguage(@PathVariable UUID id, @Valid @RequestBody CustomerLanguageDto languageDto) {
+        customerService.updateCustomerLanguage(id, languageDto);
+        return ResponseEntity.ok("Language updated");
+    }
+    @PutMapping("/update_notes/{id}")
+    public ResponseEntity<String> updateCustomerNotes(@PathVariable UUID id, @Valid @RequestBody CustomerNotesDto notesDto) {
+        customerService.updateCustomerNotes(id, notesDto);
+        return ResponseEntity.ok("Notes updated");
     }
 
     @DeleteMapping("/{id}")
