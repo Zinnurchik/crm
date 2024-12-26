@@ -2,9 +2,9 @@ package uz.zinnur.cleaning_carpet.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import uz.zinnur.cleaning_carpet.model.Employee;
@@ -12,10 +12,9 @@ import uz.zinnur.cleaning_carpet.model.Role;
 import uz.zinnur.cleaning_carpet.model.dto.*;
 import uz.zinnur.cleaning_carpet.model.projection.EmployeeProjection;
 import uz.zinnur.cleaning_carpet.repository.EmployeeRepository;
-import uz.zinnur.cleaning_carpet.repository.RoleRepository;
 import uz.zinnur.cleaning_carpet.service.EmployeeService;
+import uz.zinnur.cleaning_carpet.service.RoleService;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,42 +27,31 @@ public class EmployeeController {
     private final EmployeeService employeeService;
     private final EmployeeRepository employeeRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService, EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
+    public EmployeeController(EmployeeService employeeService, EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder, RoleService roleService) {
         this.employeeService = employeeService;
         this.employeeRepository = employeeRepository;
         this.passwordEncoder = passwordEncoder;
-        this.roleRepository = roleRepository;
+        this.roleService = roleService;
     }
-
-
 
 
 
     @GetMapping("/current_employee")
     public ResponseEntity<Employee> getCurrentEmployee() {
-        // Assuming the SecurityContext contains user details with a username or ID
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
         Optional<Employee> currentEmployee = employeeService.getEmployeeByUsername(username);
-
-        return currentEmployee.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        return ResponseEntity.ok(currentEmployee.orElseThrow(() -> new RuntimeException("Current employee not found")));
     }
 
 
 
 
-
-
-    // Get all employees
     @GetMapping
     public ResponseEntity<List<EmployeeProjection>> getAllEmployeesExceptCurrent() {
-        // Get the current authenticated user's username
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        // Fetch all employees except the current user
         List<EmployeeProjection> employees = employeeService.getAllEmployeesExceptCurrent(currentUsername);
         return ResponseEntity.ok(employees);
     }
@@ -71,37 +59,20 @@ public class EmployeeController {
 
 
 
-
-
-
-    // Get employee by ID
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable UUID id) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
-        return employee.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(employee.orElseThrow(()->new RuntimeException("Employee not found")));
     }
 
 
 
 
-
-
-
-    // Create a new employee
     @PostMapping("/create_employee")
-    public ResponseEntity<Employee> createEmployee(@Valid @RequestBody Employee employee) {
-//        employee.getRole().setPermissions(new HashSet<>()); Role class's permissions = new HashSet();
-        Employee createdEmployee = employeeService.saveEmployee(employee);
-        return ResponseEntity.ok(createdEmployee);
+    public ResponseEntity<String> createEmployee(@Valid @RequestBody Employee employee) {
+        employeeService.saveEmployee(employee);
+        return ResponseEntity.ok("Employee created successfully.");
     }
-
-
-
-
-
-
-
 
 
 
@@ -110,15 +81,15 @@ public class EmployeeController {
     public ResponseEntity<String> updateName(
             @PathVariable UUID id,
             @Valid @RequestBody EmployeeFullNameDto updateEmployeeDTO) {
-
-        return employeeService.getEmployeeById(id)
-                .map(employee -> {
-                    employee.setName(updateEmployeeDTO.getName());
-                    employee.setSurname(updateEmployeeDTO.getSurname());
-                    employeeRepository.save(employee);
-                    return ResponseEntity.ok("Name and surname updated successfully.");
-                })
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Employee> employee = employeeService.getEmployeeById(id);
+        if (employee.isPresent()) {
+            employee.get().setName(updateEmployeeDTO.getName());
+            employee.get().setSurname(updateEmployeeDTO.getSurname());
+            employeeRepository.save(employee.get());
+            return ResponseEntity.ok("Name and surname updated successfully.");
+        }else {
+            throw new UsernameNotFoundException("Employee not found.");
+        }
     }
 
     @PutMapping("/update_username/{id}")
@@ -126,20 +97,18 @@ public class EmployeeController {
             @PathVariable UUID id,
             @Valid @RequestBody EmployeeUsernameDto usernameDto) {
 
-        // Check if the username already exists
         boolean isUsernameTaken = employeeRepository.existsByUsername(usernameDto.getUsername());
         if (isUsernameTaken) {
-            return ResponseEntity.badRequest().body("Username is already taken.");
+            throw new RuntimeException("Username already taken.");
         }
-
-        // Find the employee and update the username
-        return employeeService.getEmployeeById(id)
-                .map(employee -> {
-                    employee.setUsername(usernameDto.getUsername());
-                    employeeRepository.save(employee);
-                    return ResponseEntity.ok("Username updated successfully.");
-                })
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Employee> employee = employeeService.getEmployeeById(id);
+        if (employee.isPresent()) {
+            employee.get().setUsername(usernameDto.getUsername());
+            employeeRepository.save(employee.get());
+            return ResponseEntity.ok("Username updated successfully.");
+        }else {
+            throw new RuntimeException("Employee not found.");
+        }
     }
 
     @PutMapping("/update_phone_number/{id}")
@@ -147,44 +116,36 @@ public class EmployeeController {
             @PathVariable UUID id,
             @Valid @RequestBody EmployeePhoneNumberDto phoneNumber) {
 
-        // Check if the phone number is already in use
         boolean isPhoneNumberTaken = employeeRepository.existsByPhoneNumber(phoneNumber.getPhoneNumber());
         if (isPhoneNumberTaken) {
-            return ResponseEntity.badRequest().body("Phone number is already taken.");
+            throw new RuntimeException("Phone number already taken.");
         }
-
-        // Find the employee and update the phone number
-        return employeeService.getEmployeeById(id)
-                .map(employee -> {
-                    employee.setPhoneNumber(phoneNumber.getPhoneNumber()); // Update the phone number
-                    employeeRepository.save(employee);    // Save changes to the database
-                    return ResponseEntity.ok("Phone number updated successfully.");
-                })
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Employee> employee = employeeService.getEmployeeById(id);
+        if (employee.isPresent()) {
+            employee.get().setPhoneNumber(phoneNumber.getPhoneNumber());
+            employeeRepository.save(employee.get());
+            return ResponseEntity.ok("Phone number updated successfully.");
+        }else {
+            throw new RuntimeException("Phone number not found.");
+        }
     }
-
 
     @PutMapping("/update_password/{id}")
     public ResponseEntity<String> updatePassword(
             @PathVariable UUID id,
             @Valid @RequestBody EmployeePasswordDto passwordDto) {
-
-        // Find the employee by ID
-        return employeeService.getEmployeeById(id)
-                .map(employee -> {
-                    // Verify the old password
-                    if (!passwordEncoder.matches(passwordDto.getOldPassword(), employee.getPassword())) {
-                        return ResponseEntity.badRequest().body("Old password is incorrect.");
-                    }
-
-                    // Hash the new password before saving
-                    String hashedPassword = passwordEncoder.encode(passwordDto.getNewPassword());
-                    employee.setPassword(hashedPassword);
-                    employeeRepository.save(employee);
-
-                    return ResponseEntity.ok("Password updated successfully.");
-                })
-                .orElse(ResponseEntity.notFound().build());
+        Optional<Employee> employee = employeeService.getEmployeeById(id);
+        if (employee.isPresent()) {
+            if (!passwordEncoder.matches(passwordDto.getOldPassword(), employee.get().getPassword())) {
+                throw new RuntimeException("Old password doesn't match.");
+            }
+            String hashedPassword = passwordEncoder.encode(passwordDto.getNewPassword());
+            employee.get().setPassword(hashedPassword);
+            employeeRepository.save(employee.get());
+            return ResponseEntity.ok("Password updated successfully.");
+        }else {
+            throw new RuntimeException("Employee not found.");
+        }
     }
 
     @PutMapping("/update_role/{id}")
@@ -192,43 +153,32 @@ public class EmployeeController {
             @PathVariable UUID id,
             @RequestBody EmployeeRoleDto role) {
 
-        // Validate the role against allowed roles
-        Role byRole = roleRepository.findByRole(role.getRole());
-        if (byRole == null) {
-            return ResponseEntity.badRequest().body("Role not found.");
+        Role byRole = roleService.findRoleByRole(role.getRole());
+        Optional<Employee> employee = employeeService.getEmployeeById(id);
+        if (employee.isPresent()) {
+            employee.get().setRole(byRole);
+            employeeRepository.save(employee.get());
+            return ResponseEntity.ok("Role updated successfully.");
+        }else {
+            throw new RuntimeException("Employee not found.");
         }
-
-        // Find the employee and update the role
-        return employeeService.getEmployeeById(id)
-                .map(employee -> {
-                    employee.setRole(byRole); // Update the role
-                    employeeRepository.save(employee); // Save changes to the database
-                    return ResponseEntity.ok("Role updated successfully.");
-                })
-                .orElse(ResponseEntity.notFound().build());
     }
 
 
 
 
-
-
-
-
-
-    // Delete an employee by ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable UUID id) {
+    public ResponseEntity<String> deleteEmployee(@PathVariable UUID id) {
         Optional<Employee> existingEmployee = employeeService.getEmployeeById(id);
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         if (existingEmployee.isPresent() && existingEmployee.get().getUsername().equals(currentUsername)) {
-            throw(new RuntimeException("You are not allowed to delete yourself"));
+            throw new RuntimeException("You are not allowed to delete yourself");
         }
         if (existingEmployee.isPresent()) {
             employeeService.deleteEmployee(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok("Employee deleted successfully.");
         } else {
-            return ResponseEntity.notFound().build();
+            throw new RuntimeException("Employee not found.");
         }
     }
 }

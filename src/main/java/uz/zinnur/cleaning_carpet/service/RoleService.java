@@ -24,7 +24,7 @@ public class RoleService {
     }
 
     public Role findRoleByRole(String role) {
-        return roleRepository.findByRole(role);
+        return roleRepository.findByRole(role).orElseThrow(() -> new RuntimeException("Role not found"));
     }
 
     // Fetch role by ID

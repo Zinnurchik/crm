@@ -27,6 +27,11 @@ public class CustomerService {
                 .orElseThrow(() -> new IllegalArgumentException("Customer with ID " + customerId + " does not exist."));
     }
 
+    public Customer findCustomerByPhoneNumber(String phoneNumber) {
+        return customerRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Customer with phone number " + phoneNumber + " does not exist."));
+    }
+
     public Customer createCustomer(Customer customer) {
         // Additional validation or preprocessing logic can go here
         return customerRepository.save(customer); // Save the customer to the database
