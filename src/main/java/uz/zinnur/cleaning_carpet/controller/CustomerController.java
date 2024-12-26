@@ -69,6 +69,13 @@ public class CustomerController {
         customerService.updateCustomerLanguage(id, languageDto);
         return ResponseEntity.ok("Language updated");
     }
+
+    @PutMapping("/update_address/{id}")
+    public ResponseEntity<String> updateCustomerAddress(@PathVariable UUID id, @Valid @RequestBody CustomerAddressDto addressDto) {
+        customerService.updateCustomerAddress(id, addressDto);
+        return ResponseEntity.ok("Address updated");
+    }
+
     @PutMapping("/update_notes/{id}")
     public ResponseEntity<String> updateCustomerNotes(@PathVariable UUID id, @Valid @RequestBody CustomerNotesDto notesDto) {
         customerService.updateCustomerNotes(id, notesDto);

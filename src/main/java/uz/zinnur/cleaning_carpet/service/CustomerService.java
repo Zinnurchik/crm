@@ -61,7 +61,7 @@ public class CustomerService {
         Customer customerById = getCustomerById(id);
         customerById.setPhoneNumber(phoneNumberDto.getPhoneNumber());
         customerById.setExtraPhoneNumber(phoneNumberDto.getExtraPhoneNumber());
-        createCustomer(customerById);
+        customerRepository.save(customerById);
     }
 
 
@@ -81,6 +81,12 @@ public class CustomerService {
     public void updateCustomerNotes(UUID id,@NonNull @Valid CustomerNotesDto notesDto) {
         Customer customerById = getCustomerById(id);
         customerById.setNotes(notesDto.getNotes());
+        customerRepository.save(customerById);
+    }
+
+    public void updateCustomerAddress(UUID id,@NonNull @Valid CustomerAddressDto addressDto) {
+        Customer customerById = getCustomerById(id);
+        customerById.setAddress(addressDto.getAddress());
         customerRepository.save(customerById);
     }
 }
