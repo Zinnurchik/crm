@@ -2,6 +2,7 @@ package uz.zinnur.cleaning_carpet.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uz.zinnur.cleaning_carpet.model.Employee;
@@ -32,7 +33,7 @@ public class EmployeeService {
         return employeeRepository.findById(id);
     }
 
-    public void saveEmployee(Employee employee) {
+    public Employee saveEmployee(@NonNull Employee employee) {
         if (employeeRepository.existsByUsername(employee.getUsername())) {
             throw new IllegalArgumentException("Username already exists");
         }
@@ -43,7 +44,7 @@ public class EmployeeService {
         try {
             Role roleByRole = roleService.findRoleByRole(employee.getRole().getRole());
             employee.setRole(roleByRole);
-            employeeRepository.save(employee);
+            return employeeRepository.save(employee);
         } catch (DataIntegrityViolationException e) {
             throw new IllegalStateException("Failed to save employee due to data integrity violation", e);
         }
