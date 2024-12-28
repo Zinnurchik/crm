@@ -7,8 +7,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import uz.zinnur.cleaning_carpet.config.JwtService;
 import uz.zinnur.cleaning_carpet.model.Employee;
 import uz.zinnur.cleaning_carpet.model.Role;
+import uz.zinnur.cleaning_carpet.model.dao.AuthenticationResponse;
 import uz.zinnur.cleaning_carpet.model.dto.*;
 import uz.zinnur.cleaning_carpet.model.projection.EmployeeProjection;
 import uz.zinnur.cleaning_carpet.repository.EmployeeRepository;
@@ -28,13 +30,15 @@ public class EmployeeController {
     private final EmployeeRepository employeeRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
+    private final JwtService jwtService;
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService, EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder, RoleService roleService) {
+    public EmployeeController(EmployeeService employeeService, EmployeeRepository employeeRepository, PasswordEncoder passwordEncoder, RoleService roleService, JwtService jwtService) {
         this.employeeService = employeeService;
         this.employeeRepository = employeeRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
+        this.jwtService = jwtService;
     }
 
 
@@ -93,7 +97,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/update_username/{id}")
-    public ResponseEntity<Employee> updateUsername(
+    public ResponseEntity<AuthenticationResponse> updateUsername(
             @PathVariable UUID id,
             @Valid @RequestBody EmployeeUsernameDto usernameDto) {
 
@@ -105,7 +109,7 @@ public class EmployeeController {
         if (employee.isPresent()) {
             employee.get().setUsername(usernameDto.getUsername());
             Employee save = employeeRepository.save(employee.get());
-            return ResponseEntity.ok(save);
+            return ResponseEntity.ok(new AuthenticationResponse(jwtService.generateToken(save)));
         }else {
             throw new RuntimeException("Employee not found.");
         }
