@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,7 +24,8 @@ public class GlobalExceptionHandler {
     // Validation Errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDetails> handleValidationException(
-            MethodArgumentNotValidException ex, HttpServletRequest request) {
+            @NonNull MethodArgumentNotValidException ex,
+            @NonNull HttpServletRequest request) {
 
         Map<String, String> fieldErrors = ex.getBindingResult().getFieldErrors()
                 .stream()

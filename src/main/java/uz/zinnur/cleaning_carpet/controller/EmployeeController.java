@@ -93,7 +93,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/update_username/{id}")
-    public ResponseEntity<String> updateUsername(
+    public ResponseEntity<Employee> updateUsername(
             @PathVariable UUID id,
             @Valid @RequestBody EmployeeUsernameDto usernameDto) {
 
@@ -104,8 +104,8 @@ public class EmployeeController {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
         if (employee.isPresent()) {
             employee.get().setUsername(usernameDto.getUsername());
-            employeeRepository.save(employee.get());
-            return ResponseEntity.ok("Username updated successfully.");
+            Employee save = employeeRepository.save(employee.get());
+            return ResponseEntity.ok(save);
         }else {
             throw new RuntimeException("Employee not found.");
         }

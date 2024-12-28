@@ -1,48 +1,36 @@
 package uz.zinnur.cleaning_carpet.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "carpets")
-public class Carpet extends BaseEntity{
+public class Carpet extends BaseEntity {
+
+    @NotNull(message = "Height cannot be null")
+    @DecimalMin(value = "0.1", inclusive = true, message = "Height must be greater than 0")
+    @Column(nullable = false)
     private Double height;
-    private Double weight;
-    private String carpetStatus;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
+    @NotNull(message = "Width cannot be null")
+    @DecimalMin(value = "0.1", inclusive = true, message = "Width must be greater than 0")
+    @Column(nullable = false)
+    private Double width;
 
-    public Carpet(Double height, Double weight, String carpetStatus, Order order) {
-        this.order = order;
-        this.carpetStatus = carpetStatus;
+    @NotBlank(message = "Status cannot be blank")
+    @Column(length = 50, nullable = false)
+    private String status;
+
+    // Constructors
+    public Carpet() {}
+
+    public Carpet(Double height, Double width, String status) {
         this.height = height;
-        this.weight = weight;
+        this.width = width;
+        this.status = status;
     }
 
-    public Carpet() {
-
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
-
-    public String getCarpetStatus() {
-        return carpetStatus;
-    }
-
-    public void setCarpetStatus(String carpetStatus) {
-        this.carpetStatus = carpetStatus;
-    }
-
+    // Getters and Setters
     public Double getHeight() {
         return height;
     }
@@ -51,11 +39,19 @@ public class Carpet extends BaseEntity{
         this.height = height;
     }
 
-    public Double getWeight() {
-        return weight;
+    public Double getWidth() {
+        return width;
     }
 
-    public void setWeight(Double weight) {
-        this.weight = weight;
+    public void setWidth(Double width) {
+        this.width = width;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

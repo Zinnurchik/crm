@@ -1,50 +1,51 @@
 package uz.zinnur.cleaning_carpet.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "blankets")
-public class Blanket extends BaseEntity{
+public class Blanket extends BaseEntity {
+
+    @NotBlank(message = "Size cannot be blank")
+    @Size(max = 50, message = "Size must be at most 50 characters")
+    @Column(nullable = false, length = 50)
     private String size;
-    private String blanketStatus;
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
 
-    public Blanket(String size, String blanketStatus, Order order) {
-        this.order = order;
+    @NotBlank(message = "Status cannot be blank")
+    @Size(max = 20, message = "Status must be at most 20 characters")
+    @Column(nullable = false, length = 20)
+    private String status;
+
+    // Default Constructor
+    public Blanket() {}
+
+    // Parameterized Constructor
+    public Blanket(String size, String status) {
         this.size = size;
-        this.blanketStatus = blanketStatus;
+        this.status = status;
     }
 
-    public Blanket() {
-
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
-    }
-
-    public String getBlanketStatus() {
-        return blanketStatus;
-    }
-
-    public void setBlanketStatus(String blanketStatus) {
-        this.blanketStatus = blanketStatus;
-    }
-
+    // Getter for size
     public String getSize() {
         return size;
     }
 
+    // Setter for size
     public void setSize(String size) {
         this.size = size;
+    }
+
+    // Getter for status
+    public String getStatus() {
+        return status;
+    }
+
+    // Setter for status
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

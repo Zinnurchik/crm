@@ -1,5 +1,7 @@
 package uz.zinnur.cleaning_carpet.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -45,6 +47,7 @@ public class Customer extends BaseEntity {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL) // Lazy fetch and cascade management
     @JoinColumn(name = "customer_id") // Foreign key column in orders table
+    @JsonManagedReference
     private Set<Order> orders = new HashSet<>();
 
     public Customer(String name, String surname, String language, String type, String phoneNumber, String extraPhoneNumber, String address, String notes, Set<Order> orders) {
