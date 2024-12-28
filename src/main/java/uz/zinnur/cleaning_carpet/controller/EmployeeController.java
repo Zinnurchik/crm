@@ -78,15 +78,15 @@ public class EmployeeController {
 
 
     @PutMapping("/update_full_name/{id}")
-    public ResponseEntity<String> updateName(
+    public ResponseEntity<Employee> updateName(
             @PathVariable UUID id,
             @Valid @RequestBody EmployeeFullNameDto updateEmployeeDTO) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
         if (employee.isPresent()) {
             employee.get().setName(updateEmployeeDTO.getName());
             employee.get().setSurname(updateEmployeeDTO.getSurname());
-            employeeRepository.save(employee.get());
-            return ResponseEntity.ok("Name and surname updated successfully.");
+            Employee save = employeeRepository.save(employee.get());
+            return ResponseEntity.ok(save);
         }else {
             throw new UsernameNotFoundException("Employee not found.");
         }
@@ -112,7 +112,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/update_phone_number/{id}")
-    public ResponseEntity<String> updatePhoneNumber(
+    public ResponseEntity<Employee> updatePhoneNumber(
             @PathVariable UUID id,
             @Valid @RequestBody EmployeePhoneNumberDto phoneNumber) {
 
@@ -123,15 +123,15 @@ public class EmployeeController {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
         if (employee.isPresent()) {
             employee.get().setPhoneNumber(phoneNumber.getPhoneNumber());
-            employeeRepository.save(employee.get());
-            return ResponseEntity.ok("Phone number updated successfully.");
+            Employee save = employeeRepository.save(employee.get());
+            return ResponseEntity.ok(save);
         }else {
             throw new RuntimeException("Phone number not found.");
         }
     }
 
     @PutMapping("/update_password/{id}")
-    public ResponseEntity<String> updatePassword(
+    public ResponseEntity<Employee> updatePassword(
             @PathVariable UUID id,
             @Valid @RequestBody EmployeePasswordDto passwordDto) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
@@ -141,15 +141,15 @@ public class EmployeeController {
             }
             String hashedPassword = passwordEncoder.encode(passwordDto.getNewPassword());
             employee.get().setPassword(hashedPassword);
-            employeeRepository.save(employee.get());
-            return ResponseEntity.ok("Password updated successfully.");
+            Employee save = employeeRepository.save(employee.get());
+            return ResponseEntity.ok(save);
         }else {
             throw new RuntimeException("Employee not found.");
         }
     }
 
     @PutMapping("/update_role/{id}")
-    public ResponseEntity<String> updateRole(
+    public ResponseEntity<Employee> updateRole(
             @PathVariable UUID id,
             @RequestBody EmployeeRoleDto role) {
 
@@ -157,8 +157,8 @@ public class EmployeeController {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
         if (employee.isPresent()) {
             employee.get().setRole(byRole);
-            employeeRepository.save(employee.get());
-            return ResponseEntity.ok("Role updated successfully.");
+            Employee save = employeeRepository.save(employee.get());
+            return ResponseEntity.ok(save);
         }else {
             throw new RuntimeException("Employee not found.");
         }
