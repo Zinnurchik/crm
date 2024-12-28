@@ -60,7 +60,11 @@ public class CustomerService {
     public void updateCustomerPhoneNumber(UUID id, @NonNull @Valid CustomerPhoneNumberDto phoneNumberDto) {
         Customer customerById = getCustomerById(id);
         customerById.setPhoneNumber(phoneNumberDto.getPhoneNumber());
-        customerById.setExtraPhoneNumber(phoneNumberDto.getExtraPhoneNumber());
+        if(phoneNumberDto.getExtraPhoneNumber() == null) {
+            customerById.setExtraPhoneNumber(null);
+        }else {
+            customerById.setExtraPhoneNumber(phoneNumberDto.getExtraPhoneNumber());
+        }
         customerRepository.save(customerById);
     }
 
