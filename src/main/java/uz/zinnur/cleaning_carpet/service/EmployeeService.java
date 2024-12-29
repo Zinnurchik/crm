@@ -33,6 +33,10 @@ public class EmployeeService {
         return employeeRepository.findById(id);
     }
 
+    public List<Employee> getAllDrivers(){
+        return employeeRepository.findAllByRole(roleService.findRoleByRole("DRIVER"));
+    }
+
     public Employee saveEmployee(@NonNull Employee employee) {
         if (employeeRepository.existsByUsername(employee.getUsername())) {
             throw new IllegalArgumentException("Username already exists");

@@ -1,5 +1,6 @@
 package uz.zinnur.cleaning_carpet.config;
 
+import com.github.javafaker.Faker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +15,7 @@ import uz.zinnur.cleaning_carpet.service.RoleService;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 @Component
@@ -38,8 +40,8 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-//       seedPermissions();
-//       seedEmployeesAndRoles();
+       seedPermissions();
+       seedEmployeesAndRoles();
     }
 
     private void seedPermissions() throws InterruptedException {
@@ -80,11 +82,34 @@ public class DataSeeder implements CommandLineRunner {
         roleService.saveRole(roleWasher);
         roleService.saveRole(rolePackager);
 
-        Thread.sleep(1000);
+        List<Role> list = List.of(roleManager, roleOperator, roleDriver, roleWasher, rolePackager);
 
+        Thread.sleep(1000);
         Employee employee = new Employee("Zinnurbek", "Ahrorov", "zinnurbek", passwordEncoder.encode("78987898alo"),
                 "+998979265868", roleAdmin);
         employeeRepository.save(employee);
+
+        for (int i = 0; i < 20; i++) {
+            Faker faker = new Faker();
+            String password = faker.internet().password(8, 10);
+            String username = faker.name().username();
+            System.out.println("Password: " + password + " Username: " + username);
+            Random random = new Random();
+            long randomNumber = 100000000L + random.nextLong(900000000L);
+            String fullNumber = "+998" + randomNumber;
+
+
+            Employee employee1 = new Employee(
+                    faker.name().firstName(),
+                    faker.name().lastName(),
+                    username,
+                    passwordEncoder.encode(password),
+                    fullNumber,
+                    list.get(new Random().nextInt(list.size())));
+            employeeRepository.save(employee1);
+        }
+        Thread.sleep(1000);
+        
     }
 }
 

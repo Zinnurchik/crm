@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import uz.zinnur.cleaning_carpet.model.Employee;
+import uz.zinnur.cleaning_carpet.model.Role;
 import uz.zinnur.cleaning_carpet.model.projection.EmployeeProjection;
 
 import java.util.List;
@@ -23,4 +24,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
 
     @Transactional
     Boolean existsByPhoneNumber(String phoneNumber);
+
+    List<Employee> findAllByRole(Role driver);
 }

@@ -70,6 +70,11 @@ public class EmployeeController {
     }
 
 
+    @GetMapping("/drivers")
+    public ResponseEntity<List<Employee>> getAllDrivers() {
+        return ResponseEntity.ok(employeeService.getAllDrivers());
+    }
+
 
 
     @PostMapping("/create_employee")

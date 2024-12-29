@@ -9,15 +9,19 @@ public class OrderCreateDto {
     @NotNull(message = "Customer ID is required.")
     private UUID customerId;
 
+    @NotNull(message = "Driver IDs are required")
     @Size(min = 1, message = "There must be at least one driver.")
     private Set<UUID> driverIds;
 
+    @NotNull(message = "Carpet price is required")
     @Positive(message = "Carpet price must be a positive value.")
     private Double carpetPrice;
 
+    @NotNull(message = "Single blanket price is required")
     @Positive(message = "Single blanket price must be a positive value.")
     private Double singleBlanketPrice;
 
+    @NotNull(message = "Double blanket price is required")
     @Positive(message = "Double blanket price must be a positive value.")
     private Double doubleBlanketPrice;
 

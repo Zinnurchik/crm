@@ -41,6 +41,7 @@ public class Order extends BaseEntity {
     private List<Carpet> carpets;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Blanket> blankets;
+
     private LocalDateTime deadline;
     private Double givenPrice;
     private Double totalPrice;
