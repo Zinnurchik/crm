@@ -1,5 +1,6 @@
 package uz.zinnur.cleaning_carpet.service;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import uz.zinnur.cleaning_carpet.repository.CustomerRepository;
 import uz.zinnur.cleaning_carpet.repository.EmployeeRepository;
 import uz.zinnur.cleaning_carpet.repository.OrderRepository;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -55,13 +57,21 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public Order updateDrivers(UUID id,Set<UUID> orderDriverIds) {
+    @Transactional
+    public Order updateDrivers(UUID id, Set<UUID> orderDriverIds) {
         List<Employee> allById = employeeRepository.findAllById(orderDriverIds);
-        Order order = findById(id);
-        Set<Employee> drivers = Set.copyOf(allById);
+
+        if (allById.size() != orderDriverIds.size()) {
+            throw new IllegalArgumentException("Some driver IDs are invalid or do not exist");
+        }
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Order not found with ID: " + id));
+
+        Set<Employee> drivers = new HashSet<>(allById);
         order.setDrivers(drivers);
         return orderRepository.save(order);
     }
+
 
     public Order updateCarpetPrice(UUID id,Double carpetPrice) {
         Order order = findById(id);

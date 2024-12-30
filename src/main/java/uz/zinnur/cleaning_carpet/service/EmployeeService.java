@@ -1,5 +1,6 @@
 package uz.zinnur.cleaning_carpet.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.lang.NonNull;
@@ -33,6 +34,7 @@ public class EmployeeService {
         return employeeRepository.findById(id);
     }
 
+    @Transactional
     public List<Employee> getAllDrivers(){
         return employeeRepository.findAllByRole(roleService.findRoleByRole("DRIVER"));
     }

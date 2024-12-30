@@ -152,4 +152,23 @@ public class Order extends BaseEntity {
     public void setDeadline(LocalDateTime deadline) {
         this.deadline = deadline;
     }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "customer=" + customer +
+                ", drivers=" + drivers +
+                ", carpetPrice=" + carpetPrice +
+                ", singleBlanketPrice=" + singleBlanketPrice +
+                ", doubleBlanketPrice=" + doubleBlanketPrice +
+                ", notes='" + notes + '\'' +
+                ", status='" + status + '\'' +
+                ", orderNumber=" + orderNumber +
+                ", carpets=" + carpets +
+                ", blankets=" + blankets +
+                ", deadline=" + deadline +
+                ", givenPrice=" + givenPrice +
+                ", totalPrice=" + totalPrice +
+                '}';
+    }
 }

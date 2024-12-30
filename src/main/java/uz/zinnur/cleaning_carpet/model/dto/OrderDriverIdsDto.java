@@ -3,13 +3,14 @@ package uz.zinnur.cleaning_carpet.model.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 public class OrderDriverIdsDto {
     @NotNull(message = "Driver IDs are required")
     @Size(min = 1, message = "There must be at least one driver.")
-    private Set<UUID> driverIds;
+    private Set<UUID> driverIds = new HashSet<>();
     
     public OrderDriverIdsDto() {
         

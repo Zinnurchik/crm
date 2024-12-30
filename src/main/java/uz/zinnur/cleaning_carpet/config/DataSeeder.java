@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import uz.zinnur.cleaning_carpet.model.Customer;
 import uz.zinnur.cleaning_carpet.model.Employee;
 import uz.zinnur.cleaning_carpet.model.Permission;
 import uz.zinnur.cleaning_carpet.model.Role;
+import uz.zinnur.cleaning_carpet.repository.CustomerRepository;
 import uz.zinnur.cleaning_carpet.repository.EmployeeRepository;
 import uz.zinnur.cleaning_carpet.repository.PermissionRepository;
 import uz.zinnur.cleaning_carpet.service.PermissionService;
@@ -26,22 +28,24 @@ public class DataSeeder implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final PermissionService permissionService;
+    private final CustomerRepository customerRepository;
 
     @Autowired
     public DataSeeder(EmployeeRepository employeeRepository,
                       PermissionRepository permissionRepository,
-                      PasswordEncoder passwordEncoder, RoleService roleService, PermissionService permissionService) {
+                      PasswordEncoder passwordEncoder, RoleService roleService, PermissionService permissionService, CustomerRepository customerRepository) {
         this.employeeRepository = employeeRepository;
         this.permissionRepository = permissionRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleService = roleService;
         this.permissionService = permissionService;
+        this.customerRepository = customerRepository;
     }
 
     @Override
     public void run(String... args) throws Exception {
-       seedPermissions();
-       seedEmployeesAndRoles();
+//       seedPermissions();
+//       seedEmployeesAndRoles();
     }
 
     private void seedPermissions() throws InterruptedException {
@@ -109,7 +113,26 @@ public class DataSeeder implements CommandLineRunner {
             employeeRepository.save(employee1);
         }
         Thread.sleep(1000);
-        
+        for (int i = 0; i < 20; i++) {
+            Faker faker = new Faker();
+            Random random = new Random();
+            long randomNumber = 100000000L + random.nextLong(900000000L);
+            String fullNumber = "+998" + randomNumber;
+            Customer customer = new Customer(
+                    faker.name().firstName(),
+                    faker.name().lastName(),
+                    faker.options().option("English", "Spanish", "French", "German", "Chinese"),
+                    faker.options().option("Admin", "User", "Guest", "Moderator"),
+                    fullNumber,
+                    null,
+                    faker.address().fullAddress(),
+                    faker.lorem().paragraph(2),
+                    new HashSet<>()
+                    );
+            customerRepository.save(customer);
+        }
+
+        Thread.sleep(1000);
     }
 }
 
