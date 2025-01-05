@@ -41,7 +41,12 @@ public class EmployeeController {
         this.jwtService = jwtService;
     }
 
-
+    @GetMapping
+    public ResponseEntity<List<EmployeeProjection>> getAllEmployeesExceptCurrent() {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<EmployeeProjection> employees = employeeService.getAllEmployeesExceptCurrent(currentUsername);
+        return ResponseEntity.ok(employees);
+    }
 
     @GetMapping("/current_employee")
     public ResponseEntity<Employee> getCurrentEmployee() {
@@ -50,41 +55,22 @@ public class EmployeeController {
         return ResponseEntity.ok(currentEmployee.orElseThrow(() -> new RuntimeException("Current employee not found")));
     }
 
-
-
-
-    @GetMapping
-    public ResponseEntity<List<EmployeeProjection>> getAllEmployeesExceptCurrent() {
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<EmployeeProjection> employees = employeeService.getAllEmployeesExceptCurrent(currentUsername);
-        return ResponseEntity.ok(employees);
-    }
-
-
-
-
     @GetMapping("/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable UUID id) {
         Optional<Employee> employee = employeeService.getEmployeeById(id);
         return ResponseEntity.ok(employee.orElseThrow(()->new RuntimeException("Employee not found")));
     }
 
-
     @GetMapping("/drivers")
     public ResponseEntity<List<Employee>> getAllDrivers() {
         return ResponseEntity.ok(employeeService.getAllDrivers());
     }
-
-
 
     @PostMapping("/create_employee")
     public ResponseEntity<Employee> createEmployee(@Valid @RequestBody Employee employee) {
         Employee savedEmployee = employeeService.saveEmployee(employee);
         return ResponseEntity.ok(savedEmployee);
     }
-
-
-
 
     @PutMapping("/update_full_name/{id}")
     public ResponseEntity<Employee> updateName(
@@ -172,9 +158,6 @@ public class EmployeeController {
             throw new RuntimeException("Employee not found.");
         }
     }
-
-
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteEmployee(@PathVariable UUID id) {
