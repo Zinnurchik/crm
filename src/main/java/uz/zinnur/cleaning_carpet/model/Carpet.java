@@ -7,6 +7,10 @@ import jakarta.validation.constraints.*;
 @Table(name = "carpets")
 public class Carpet extends BaseEntity {
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
+
     @NotNull(message = "Height cannot be null")
     @DecimalMin(value = "0.1", inclusive = true, message = "Height must be greater than 0")
     @Column(nullable = false)
@@ -17,8 +21,8 @@ public class Carpet extends BaseEntity {
     @Column(nullable = false)
     private Double width;
 
-    @NotBlank(message = "Status cannot be blank")
-    @Column(length = 50, nullable = false)
+    @Size(max = 50, message = "Status must be at most 50 characters")
+    @Column(nullable = false, length = 50)
     private String status;
 
     // Constructors

@@ -1,8 +1,6 @@
 package uz.zinnur.cleaning_carpet.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -10,14 +8,19 @@ import jakarta.validation.constraints.Size;
 @Table(name = "blankets")
 public class Blanket extends BaseEntity {
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
+
+
     @NotBlank(message = "Size cannot be blank")
     @Size(max = 50, message = "Size must be at most 50 characters")
     @Column(nullable = false, length = 50)
     private String size;
 
-    @NotBlank(message = "Status cannot be blank")
-    @Size(max = 20, message = "Status must be at most 20 characters")
-    @Column(nullable = false, length = 20)
+
+    @Size(max = 50, message = "Status must be at most 50 characters")
+    @Column(nullable = false, length = 50)
     private String status;
 
     // Default Constructor

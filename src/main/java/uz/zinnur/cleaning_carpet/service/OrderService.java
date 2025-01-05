@@ -4,30 +4,34 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import uz.zinnur.cleaning_carpet.model.Blanket;
 import uz.zinnur.cleaning_carpet.model.Customer;
 import uz.zinnur.cleaning_carpet.model.Employee;
 import uz.zinnur.cleaning_carpet.model.Order;
 import uz.zinnur.cleaning_carpet.model.dto.*;
+import uz.zinnur.cleaning_carpet.repository.BlanketRepository;
 import uz.zinnur.cleaning_carpet.repository.CustomerRepository;
 import uz.zinnur.cleaning_carpet.repository.EmployeeRepository;
 import uz.zinnur.cleaning_carpet.repository.OrderRepository;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 @Service
 public class OrderService {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final EmployeeRepository employeeRepository;
+    private final BlanketRepository blanketRepository;
 
-    public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, EmployeeRepository employeeRepository) {
+    public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, EmployeeRepository employeeRepository, BlanketRepository blanketRepository) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.employeeRepository = employeeRepository;
+        this.blanketRepository = blanketRepository;
     }
 
     public Order findById(UUID id) {
@@ -97,6 +101,32 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    public void updateBlankets(UUID orderId, List<Blanket> blankets) {
+        // Validate that the order exists
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("Order with ID " + orderId + " does not exist."));
+
+        // Save or update blankets in the database
+        blanketRepository.saveAll(blankets);
+
+        // Set the new blankets list and save the order
+        order.setBlankets(blankets);
+        orderRepository.save(order);
+    }
+
+    // Update givenPrice
+    public void updateGivenPrice(Long id, Double givenPrice) {
+        orderRepository.updateGivenPrice(id, givenPrice);
+    }
+
+    // Update deadline
+    public void updateDeadline(Long id, LocalDateTime deadline) {
+        orderRepository.updateDeadline(id, deadline);
+    }
+
+    public List<Order> getByCustomerId(UUID customerId) {
+        return orderRepository.findAllByCustomerId(customerId);
+    }
     public List<Order> getAllNowOrders(UUID id) {
         return orderRepository.findAllByDriverIdAndStatus(id, "NOW");
     }
